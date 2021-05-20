@@ -34,32 +34,28 @@ app.use(function(req, res, next) {
 
 const io = socket(http);
 let gameState = {
-  collectible: {},
-  player: {}
+  collectible: {
+    id: Date.now(),
+    x: Math.floor(Math.random() * 640),
+    y: Math.floor(Math.random() * 480),
+    value: 10
+  },
+  players: {}
 }; // player details, collectible
 
 io.on('connection', client => {
   console.log('a user connected with id: ' + client.id);
 
-  if(Object.values(gameState.collectible).length == 0) {
-    gameState.collectible = {
-      id: client.id,
-      x: Math.floor(Math.random() * 640),
-      y: Math.floor(Math.random() * 480),
-      value: 10
-    };
-  }
+  // gameState.players[client.id] = ;
 
-  let playerDetail = {
+  io.emit('welcome', {
     id: client.id,
     x: Math.floor(Math.random() * 640),
     y: Math.floor(Math.random() * 480),
     score: 0
-  };
+  });
 
-  gameState.player[client.id] = playerDetail;
-
-  io.emit('welcome', {id: client.id});
+  client.on('newplayer', playerData => gameState.players[playerData.id] = playerData);
 
   let interval = setInterval(() => {
     io.emit('gameloop', gameState);
@@ -72,7 +68,7 @@ io.on('connection', client => {
   })
 
   client.on('disconnect', () => {
-    delete gameState.player[client.id];
+    delete gameState.players[client.id];
     console.log(client.id + ' has disconnected');
   });
 });

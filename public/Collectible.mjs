@@ -1,8 +1,15 @@
 class Collectible {
   constructor({x, y, value, id}) {
-
+    this.x = x;
+    this.y = y;
+    this.value = value;
+    this.id = id;
   }
 
+  draw(context) {
+    context.fillStyle = '#ffffff';
+    context.fillRect(this.x, this.y, 7, 7);
+  }
 }
 
 /*
