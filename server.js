@@ -32,46 +32,66 @@ app.use(function(req, res, next) {
     .send('Not Found');
 });
 
+
+// socket.io initiate
 const io = socket(http);
 let gameState = {
-  collectible: {
+  collectible: generateCollectible(),
+  players: {},
+  chat: []
+}; // player details, collectible
+
+function generateCollectible() {
+  return {
     id: Date.now(),
     x: Math.floor(Math.random() * 640),
     y: Math.floor(Math.random() * 480),
     value: 10
-  },
-  players: {}
-}; // player details, collectible
+  }
+}
 
 io.on('connection', client => {
   console.log('a user connected with id: ' + client.id);
 
-  // gameState.players[client.id] = ;
-
-  io.emit('welcome', {
+  gameState.players[client.id] = {
     id: client.id,
     x: Math.floor(Math.random() * 640),
     y: Math.floor(Math.random() * 480),
     score: 0
+  };
+
+  io.emit('init', {id: client.id, ...gameState});
+  
+  client.on('movement', ({x, y, id, drawing, frame}) => {
+    gameState.players[id].x = x;
+    gameState.players[id].y = y;
+    gameState.players[id].drawing = drawing;
+    gameState.players[id].frame = frame;
+
+    client.broadcast.emit('update', gameState);
   });
 
-  client.on('newplayer', playerData => gameState.players[playerData.id] = playerData);
+  client.on('item-collected', item => {
+    gameState.collectible = generateCollectible();
+    gameState.players[client.id].score += item.value;
+    console.log(gameState.collectible);
 
-  let interval = setInterval(() => {
-    io.emit('gameloop', gameState);
+    io.emit('update', gameState);
+  });
 
-
-  }, 100);
-
-  client.on('move', data => {
-    gameState.player[client.id] = data;
-  })
+  client.on('chat', ({message}) => {
+    console.log(message);
+    gameState.chat = [message].concat(gameState.chat.slice(0,4)); // 0-------->5  latest -----> 5th latest
+    io.emit('update', gameState);
+  });
 
   client.on('disconnect', () => {
     delete gameState.players[client.id];
     console.log(client.id + ' has disconnected');
   });
 });
+
+// end socket.io
 
 const portNum = process.env.PORT || 3000;
 
