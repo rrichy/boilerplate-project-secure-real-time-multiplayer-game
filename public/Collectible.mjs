@@ -4,11 +4,13 @@ class Collectible {
     this.y = y;
     this.value = value;
     this.id = id;
+    this.boundary = [x - 8, x + 8, y, y + 14];
   }
 
-  draw(context) {
-    context.fillStyle = '#ffffff';
-    context.fillRect(this.x, this.y, 7, 7);
+  draw(context, collectibleImg) {
+    context.drawImage(collectibleImg, this.x - 16, this.y - 16);
+    context.fillStyle = '#ff0000';
+    context.fillRect(this.boundary[0], this.boundary[2], this.boundary[1] - this.boundary[0], this.boundary[3] - this.boundary[2]);
   }
 }
 

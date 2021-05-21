@@ -1,43 +1,111 @@
 import Player from './Player.mjs';
 import Collectible from './Collectible.mjs';
 
-const BG_COLOUR = '#231f20';
-
 const socket = io();
 const canvas = document.getElementById('game-window');
 const context = canvas.getContext('2d');
 
-let mainPlayer;
-socket.on('welcome', data => {
-    if(data.id === socket.id) {
-        console.log('Welcome, ' + data.id + ' !');
-        mainPlayer = new Player(data);
-        socket.emit('newplayer', data);
-    }    
-    else console.log(data.id + ' has joined the game.');
-});
 
-let players = [],
-    collectible;
+let backgroundImg = new Image();
+backgroundImg.src = '../assets/lobby.png';
 
-socket.on('gameloop', state => {
-    collectible = new Collectible(state.collectible);
-    players = Object.values(state.players).map(player => new Player(player));
+let collectibleImg = new Image();
+    collectibleImg.src = '../assets/collectible1.png';
 
-    init();
+let playerImg = new Image();
+    playerImg.src = '../assets/sans.png';
 
-    collectible.draw(context);
+let playerTwo = new Image();
+    playerTwo.src ='../assets/sans-2.png';
 
-    for(let player of players) player.draw(context, player.id === socket.id ? true: false);
+let collect, playersList, messages, mainPlayer;
 
-});
+socket.on('init', ({id, collectible, players}) => {
+    if(id === socket.id) {
+        console.log('Welcome, ' + id + ' !');
+        mainPlayer = new Player(players[id]);
+        initiate(collectible, players);
 
-init();
+        document.onkeydown = e => {
+            const { keyCode } = e;
+            if(keyCode == 65 || keyCode == 37) mainPlayer.movement['left'] = true;
+            if(keyCode == 68 || keyCode == 39) mainPlayer.movement['right'] = true;
+            if(keyCode == 87 || keyCode == 38) mainPlayer.movement['up'] = true;
+            if(keyCode == 83 || keyCode == 40) mainPlayer.movement['down'] = true;
+        }
 
-function init() {
-    context.fillStyle = BG_COLOUR;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+        document.onkeyup = e => {
+            const { keyCode } = e;
+            if(keyCode == 65 || keyCode == 37) mainPlayer.movement['left'] = false;
+            if(keyCode == 68 || keyCode == 39) mainPlayer.movement['right'] = false;
+            if(keyCode == 87 || keyCode == 38) mainPlayer.movement['up'] = false;
+            if(keyCode == 83 || keyCode == 40) mainPlayer.movement['down'] = false;
+        }
+        let refresh = setInterval(() => {
+            mainPlayer.collision(collect, socket);
+            draw(collect, playersList);
+        }, 10);
+    }
+    else console.log(id + ' has joined the game.');
+
     
-    document.addEventListener('keydown', mainPlayer.keydown);
-    // document.addEventListener('keyup', mainPlayer.keyup);
+
+});
+
+socket.on('update', ({collectible, players, chat}) => initiate(collectible, players, chat));
+
+function initiate(collectible, players, chat = []) {
+    collect = new Collectible(collectible);
+    playersList = Object.values(players).map(player => {
+        if(player.id === socket.id) {
+            mainPlayer = new Player(player);
+            return mainPlayer;
+        }
+        else return new Player(player)
+    });
+    messages = chat; 
 }
+
+function draw(collectible, players) {
+    context.drawImage(backgroundImg, 0, 0);
+    collectible.draw(context, collectibleImg);
+
+    for(let player of players) player.draw(player.id === socket.id ? playerImg : playerTwo, context, player.id === socket.id ? socket : false);
+
+    for(let i = 0; i < messages.length; i++) {
+        context.font = '12px Arial';
+        context.fillStyle = '#ffffff';
+        context.fillText(messages[i], 40, 410 - i * 20);
+    }
+}
+
+// Adding chat system to the game
+
+let container = document.createElement('div');
+let inputbox = document.createElement('input');
+inputbox.placeholder = 'Send message here';
+inputbox.setAttribute('id', 'message');
+
+let sendbutton = document.createElement('button');
+sendbutton.onclick = sendMessage;
+sendbutton.innerText = 'Send';
+
+container.appendChild(document.createElement('br'));
+container.appendChild(inputbox);
+container.appendChild(sendbutton);
+
+document.body.appendChild(container);
+
+// Added interface
+
+// Adding chat functions
+
+function sendMessage() {
+    let message = inputbox.value;
+    inputbox.value = '';
+    socket.emit('chat', {message});
+}
+/* 
+ctx.font = "30px Arial";
+ctx.fillText("Hello World", 10, 50);
+*/
