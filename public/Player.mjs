@@ -1,10 +1,12 @@
 class Player {
-  constructor({x, y, score, id, drawing, frame}) {
+  constructor({x, y, score, id, drawing, chat, frame, showDialog = false}) {
     this.x = x;
     this.y = y;
     this.speed = 2;
     this.score = score || 0;
     this.id = id;
+    this.chat = chat || '';
+    this.showDialog = showDialog;
     this.movement = {
       'left': false,
       'right': false,
@@ -37,10 +39,10 @@ class Player {
       // console.log(Object.values(this.movement).some(Boolean));
       for(let [dir, val] of Object.entries(this.movement)) {
         if(val) {
-          if(dir == 'left') this.x -= this.speed;
-          if(dir == 'right') this.x += this.speed;
-          if(dir == 'up') this.y -= this.speed;
-          if(dir == 'down') this.y += this.speed;
+          if(dir == 'left') this.x -= this.x <= 17 ? 0 : this.speed;
+          if(dir == 'right') this.x += this.x >= 623 ? 0 : this.speed;
+          if(dir == 'up') this.y -= this.y <= 52 ? 0 : this.speed;
+          if(dir == 'down') this.y += this.y >= 426 ? 0 : this.speed;
 
           this.drawing = this.animation.walking[dir]();
         }
