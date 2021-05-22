@@ -38,7 +38,7 @@ const io = socket(http);
 let gameState = {
   collectible: generateCollectible(),
   players: {},
-  chat: []
+  // chat: ''
 }; // player details, collectible
 
 function generateCollectible() {
@@ -76,13 +76,19 @@ io.on('connection', client => {
     gameState.players[client.id].score += item.value;
     console.log(gameState.collectible);
 
-    io.emit('update', gameState);
+    io.emit('new-item', {item: gameState.collectible});
+    // io.emit('update', gameState);
   });
 
   client.on('chat', ({message}) => {
-    console.log(message);
-    gameState.chat = [message].concat(gameState.chat.slice(0,4)); // 0-------->5  latest -----> 5th latest
-    io.emit('update', gameState);
+    gameState.players[client.id].chat = message;
+    gameState.players[client.id].showDialog = true;
+    client.broadcast.emit('receive-chat', {message: [client.id, message]});
+    client.broadcast.emit('update', gameState);
+    setTimeout(() => {
+      gameState.players[client.id].showDialog = false;
+      io.emit('update', gameState);
+    }, 4000);
   });
 
   client.on('disconnect', () => {
