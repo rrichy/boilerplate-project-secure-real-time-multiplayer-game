@@ -9,8 +9,8 @@ class Collectible {
 
   draw(context, collectibleImg) {
     context.drawImage(collectibleImg, this.x - 16, this.y - 16);
-    context.fillStyle = '#ff0000';
-    context.fillRect(this.boundary[0], this.boundary[2], this.boundary[1] - this.boundary[0], this.boundary[3] - this.boundary[2]);
+    // context.fillStyle = '#ff0000';
+    // context.fillRect(this.boundary[0], this.boundary[2], this.boundary[1] - this.boundary[0], this.boundary[3] - this.boundary[2]);
   }
 }
 

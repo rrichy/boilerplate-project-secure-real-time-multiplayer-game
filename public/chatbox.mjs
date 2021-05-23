@@ -3,19 +3,14 @@ class Chat {
         this.message = message;
     }
 
-    draw(context, x, y) {
+    draw(context, x, y, boxes) { //boxes [stl, str, sbl, sbr, ltl, ltr, lbl, lbr]
         const length = this.message.length;
-        console.log('drawing dialog box', length);
-        console.log(context);
-        console.log(x, y);
         
         if(length <= 22) { // use small boxes
             let message = this.message.match(/.{1,11}/g);
             if(x <= 71) { // use box with right orientation
                 if(y <= 121) { // use box bot-right
-                    let box = new Image();
-                    box.src = '../assets/chatbox/chat-s-br.png';
-                    context.drawImage(box, x - 14, y + 6);
+                    context.drawImage(boxes[3], x - 14, y + 6);
 
                     for(let i = 0; i < message.length; i++) {
                         context.font = '12px Arial';
@@ -24,9 +19,7 @@ class Chat {
                     }
                 }
                 else { // use top-right
-                    let box = new Image();
-                    box.src = '../assets/chatbox/chat-s-tr.png';
-                    context.drawImage(box, x - 14, y - 124);
+                    context.drawImage(boxes[1], x - 14, y - 124);
 
                     for(let i = 0; i < message.length; i++) {
                         context.font = '12px Arial';
@@ -37,9 +30,7 @@ class Chat {
             }
             else { // use box with left orientation
                 if(y <= 121) { // use box bot-left
-                    let box = new Image();
-                    box.src = '../assets/chatbox/chat-s-bl.png';
-                    context.drawImage(box, x - 79, y + 7);
+                    context.drawImage(boxes[2], x - 79, y + 7);
 
                     for(let i = 0; i < message.length; i++) {
                         context.font = '12px Arial';
@@ -48,9 +39,7 @@ class Chat {
                     }
                 }
                 else { // use top-left
-                    let box = new Image();
-                    box.src = '../assets/chatbox/chat-s-tl.png';
-                    context.drawImage(box, x - 79, y - 125);
+                    context.drawImage(boxes[0], x - 79, y - 125);
 
                     for(let i = 0; i < message.length; i++) {
                         context.font = '12px Arial';
