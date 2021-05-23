@@ -25,43 +25,57 @@ class Player {
     this.drawing = drawing || [35 * Math.floor(this.frame / 8), 0, 35, 45, this.x - 18, this.y - 43, 35, 45];
   }
 
-  draw(img, context, socket) {
-    // console.log(this.drawing);
-    if(socket && Object.values(this.movement).some(Boolean)) this.movePlayer(socket);
-
-    context.drawImage(img, ...this.drawing);
-    context.fillStyle = '#ff0000';
-    context.fillRect(this.x - 5, this.y - 5, 10, 10);
-  }
-
-  movePlayer(socket) {
-    // while(Object.values(this.movement).some(Boolean)){
-      // console.log(Object.values(this.movement).some(Boolean));
+  draw(img, context, item, socket) {
+    if(Object.values(this.movement).some(Boolean)) {
       for(let [dir, val] of Object.entries(this.movement)) {
-        if(val) {
-          if(dir == 'left') this.x -= this.x <= 17 ? 0 : this.speed;
-          if(dir == 'right') this.x += this.x >= 623 ? 0 : this.speed;
-          if(dir == 'up') this.y -= this.y <= 52 ? 0 : this.speed;
-          if(dir == 'down') this.y += this.y >= 426 ? 0 : this.speed;
-
-          this.drawing = this.animation.walking[dir]();
-        }
+        if(val) this.movePlayer(dir, this.speed);
+        if(this.collision(item)) socket.emit('item-collected', item);
       }
-      if(this.frame >= 31) this.frame = 0;
-      else this.frame += 1;
-
-      socket.emit('movement', this);
+      socket.emit('player-update', this);
     }
-  // }
-
-  collision(item, socket) {
-    if(this.x >= item.boundary[0] && this.x <= item.boundary[1] && this.y >= item.boundary[2] && this.y <= item.boundary[3]) {
-      socket.emit('item-collected', item);
-    }
+    
+    context.drawImage(img, ...this.drawing);
+    // context.fillStyle = '#ff0000';
+    // context.fillRect(this.x - 5, this.y - 5, 10, 10);
   }
 
-  calculateRank(arr) {
+  movePlayer(dir, speed) {
+    if(dir == 'left') this.x -= this.x <= 17 ? 0 : speed;
+    if(dir == 'right') this.x += this.x >= 623 ? 0 : speed;
+    if(dir == 'up') this.y -= this.y <= 52 ? 0 : speed;
+    if(dir == 'down') this.y += this.y >= 426 ? 0 : speed;
 
+    this.drawing = this.animation.walking[dir]();
+    
+    if(this.frame >= 31) this.frame = 0;
+    else this.frame += 1
+  }
+  // movePlayer(socket) {
+  //     for(let [dir, val] of Object.entries(this.movement)) {
+  //       if(val) {
+  //         if(dir == 'left') this.x -= this.x <= 17 ? 0 : this.speed;
+  //         if(dir == 'right') this.x += this.x >= 623 ? 0 : this.speed;
+  //         if(dir == 'up') this.y -= this.y <= 52 ? 0 : this.speed;
+  //         if(dir == 'down') this.y += this.y >= 426 ? 0 : this.speed;
+
+  //         this.drawing = this.animation.walking[dir]();
+  //       }
+  //     }
+  //     if(this.frame >= 31) this.frame = 0;
+  //     else this.frame += 1;
+
+  //     socket.emit('movement', this);
+  //   }
+
+  collision(item) {
+    return this.x >= item.boundary[0] && this.x <= item.boundary[1] && this.y >= item.boundary[2] && this.y <= item.boundary[3];
+  }
+
+  calculateRank(arr) { //map to scores, remove duplicates, descending sort, indexOf, return rank
+    let scores = arr.map(player => player.score);
+    scores = [...new Set(scores)].sort((a, b) => b - a);
+
+    return `Rank: ${scores.indexOf(this.score) + 1}/${arr.length}`;
   }
 }
 

@@ -11,21 +11,27 @@ let backgroundImg = new Image();
 backgroundImg.src = '../assets/lobby.png';
 
 let collectibleImg = new Image();
-    collectibleImg.src = '../assets/collectible1.png';
+collectibleImg.src = '../assets/collectible1.png';
 
 let playerImg = new Image();
-    playerImg.src = '../assets/sans.png';
+playerImg.src = '../assets/sans.png';
 
 let playerTwo = new Image();
-    playerTwo.src ='../assets/sans-2.png';
+playerTwo.src ='../assets/sans-2.png';
+
+const dialogBoxes = ['../assets/chatbox/chat-s-tl.png', '../assets/chatbox/chat-s-tr.png', '../assets/chatbox/chat-s-bl.png', '../assets/chatbox/chat-s-br.png',
+                     '../assets/chatbox/chat-l-tl.png', '../assets/chatbox/chat-l-tr.png', '../assets/chatbox/chat-l-bl.png', '../assets/chatbox/chat-l-br.png']
+                    .map(loc => {
+                        let dialog = new Image();
+                        dialog.src = loc;
+                        return dialog;
+                    });
 
 let collect, playersList, messages = [], mainPlayer;
 
 socket.on('init', ({id, collectible, players}) => {
     if(id === socket.id) {
         console.log('Welcome, ' + id + ' !');
-        mainPlayer = new Player(players[id]);
-        initiate(collectible, players);
 
         document.onkeydown = e => {
             const { keyCode } = e;
@@ -42,19 +48,34 @@ socket.on('init', ({id, collectible, players}) => {
             if(keyCode == 87 || keyCode == 38) mainPlayer.movement['up'] = false;
             if(keyCode == 83 || keyCode == 40) mainPlayer.movement['down'] = false;
         }
-        let refresh = setInterval(() => {
-            mainPlayer.collision(collect, socket);
+        setInterval(() => {
             draw();
+
         }, 10);
+
+        // let refresh = setInterval(() => {
+        //     draw();
+        //     // if(mainPlayer.collision()) request a new collection
+        //     socket.emit('player-update',  mainPlayer);
+        // }, 15);
     }
     else console.log(id + ' has joined the game.');
 
+    
+    initiate(collectible, players);
 
 });
 
 socket.on('update', ({collectible, players}) => initiate(collectible, players));
 
-socket.on('new-item', ({item}) => collect = new Collectible(item));
+socket.on('new-item', state => {
+    collect = new Collectible(state.collectible);
+    for(let player of playersList) {
+        player.score = state.players[player.id].score;
+    }
+    // mainPlayer.score = state.players[socket.id].score;
+    console.log(mainPlayer.calculateRank(playersList));
+});
 
 socket.on('receive-chat', ({message}) => {
     messages = [message].concat(messages.slice(0,4))
@@ -78,11 +99,12 @@ function draw() {
     // if(dialog) dialog.draw(context, mainPlayer.x, mainPlayer.y);
 
     for(let player of playersList) {
-        player.draw(player.id === socket.id ? playerImg : playerTwo, context, player.id === socket.id ? socket : false);
+        // player.draw(player.id === socket.id ? playerImg : playerTwo, context);
+        player.draw(player.id === socket.id ? playerImg : playerTwo, context, collect, player.id === socket.id ? socket : false);
         // console.log(player);
         if(player.chat != '' && player.showDialog) {
             let chat = new Chat(player.chat);
-            chat.draw(context, player.x, player.y);
+            chat.draw(context, player.x, player.y, dialogBoxes);
         }
     }
 

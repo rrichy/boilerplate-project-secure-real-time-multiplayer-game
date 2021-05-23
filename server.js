@@ -3,12 +3,18 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const expect = require('chai');
 const socket = require('socket.io');
+const helmet = require('helmet');
 
 const fccTestingRoutes = require('./routes/fcctesting.js');
 const runner = require('./test-runner.js');
 
 const app = express();
 const http = require('http').createServer(app);
+
+app.use(helmet({
+  hidePoweredBy: { setTo: 'PHP 7.4.3'}
+}));
+app.use(helmet.noCache());
 
 app.use('/public', express.static(process.cwd() + '/public'));
 app.use('/assets', express.static(process.cwd() + '/assets'));
@@ -38,14 +44,14 @@ const io = socket(http);
 let gameState = {
   collectible: generateCollectible(),
   players: {},
-  // chat: ''
+  destroyed: []
 }; // player details, collectible
 
 function generateCollectible() {
   return {
     id: Date.now(),
-    x: Math.floor(Math.random() * 640),
-    y: Math.floor(Math.random() * 480),
+    x: 33 + Math.floor(Math.random() * 574),
+    y: 68 + Math.floor(Math.random() * 342),
     value: 10
   }
 }
@@ -55,28 +61,33 @@ io.on('connection', client => {
 
   gameState.players[client.id] = {
     id: client.id,
-    x: Math.floor(Math.random() * 640),
-    y: Math.floor(Math.random() * 480),
+    x: 33 + Math.floor(Math.random() * 574),
+    y: 68 + Math.floor(Math.random() * 342),
     score: 0
   };
 
   io.emit('init', {id: client.id, ...gameState});
   
-  client.on('movement', ({x, y, id, drawing, frame}) => {
-    gameState.players[id].x = x;
-    gameState.players[id].y = y;
-    gameState.players[id].drawing = drawing;
-    gameState.players[id].frame = frame;
+  client.on('player-update', ({x, y, drawing, frame}) => {
+    gameState.players[client.id].x = x;
+    gameState.players[client.id].y = y;
+    gameState.players[client.id].drawing = drawing;
+    gameState.players[client.id].frame = frame;
 
     client.broadcast.emit('update', gameState);
   });
 
   client.on('item-collected', item => {
-    gameState.collectible = generateCollectible();
-    gameState.players[client.id].score += item.value;
-    console.log(gameState.collectible);
-
-    io.emit('new-item', {item: gameState.collectible});
+    if(!gameState.destroyed.includes(item.id)) {
+      gameState.collectible = generateCollectible();
+      gameState.players[client.id].score += item.value;
+      gameState.destroyed.push(item.id);
+      console.log(gameState.collectible);
+      
+      
+      io.emit('new-item', gameState);
+      
+    }
     // io.emit('update', gameState);
   });
 
@@ -88,7 +99,7 @@ io.on('connection', client => {
     setTimeout(() => {
       gameState.players[client.id].showDialog = false;
       io.emit('update', gameState);
-    }, 4000);
+    }, 7000);
   });
 
   client.on('disconnect', () => {

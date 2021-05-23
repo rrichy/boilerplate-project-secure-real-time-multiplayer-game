@@ -32,7 +32,8 @@ const fs = require('fs');
 const runner = require('../test-runner');
 
 module.exports = function (app) {
-
+  app.use(cors({origin: '*'}));
+  
   app.route('/_api/server.js')
     .get(function(req, res, next) {
       console.log('requested');
