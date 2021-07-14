@@ -10,22 +10,31 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../public/style.css" type="text/css" />
-    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://code.jquery.com/jquery-2.2.1.min.js"
+      integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+      crossorigin="anonymous"
+    ></script>
     <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
     <header>
-      <h1>Secure Real Time Multiplayer Game</h1>
+      <h1>Gathering Hall</h1>
     </header>
-    <hr style="margin: 25px" />
+    <!-- <hr style="margin: 25px" /> -->
     <div class="container">
-      <canvas 
-        ref="game"
-        id="game-window" 
-        width="640" 
-        height="480"
-      >
-      </canvas>
+      <canvas ref="game" id="game-window" width="640" height="480"> </canvas>
+      <div id="chat-wrapper">
+        <ul id="log"></ul>
+        <form>
+          <input type="text" id="message" placeholder="Type here" />
+          <button type="submit">Send</button>
+        </form>
+      </div>
     </div>
   </body>
   <script src="../public/game.mjs" type="module"></script>
