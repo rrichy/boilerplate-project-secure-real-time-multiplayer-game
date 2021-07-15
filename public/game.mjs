@@ -1,12 +1,11 @@
 import Player from "./Player.mjs";
 import Collectible from "./Collectible.mjs";
-import Chat from "./chatbox.mjs";
+import { chatHandler, Chat } from "./chatbox.mjs";
+import Keypress from "./keypress.mjs";
 
 const socket = io();
 const canvas = document.getElementById("game-window");
 const context = canvas.getContext("2d");
-
-Chat(socket);
 
 let backgroundImg = new Image();
 backgroundImg.src = "../assets/lobby.png";
@@ -20,42 +19,33 @@ playerImg.src = "../assets/sans.png";
 let playerTwo = new Image();
 playerTwo.src = "../assets/sans-2.png";
 
-const dialogBoxes = [
-  "../assets/chatbox/chat-s-tl.png",
-  "../assets/chatbox/chat-s-tr.png",
-  "../assets/chatbox/chat-s-bl.png",
-  "../assets/chatbox/chat-s-br.png",
-  "../assets/chatbox/chat-l-tl.png",
-  "../assets/chatbox/chat-l-tr.png",
-  "../assets/chatbox/chat-l-bl.png",
-  "../assets/chatbox/chat-l-br.png",
-].map((loc) => {
-  let dialog = new Image();
-  dialog.src = loc;
-  return dialog;
-});
+// const dialogBoxes = [
+//   "../assets/chatbox/chat-s-tl.png",
+//   "../assets/chatbox/chat-s-tr.png",
+//   "../assets/chatbox/chat-s-bl.png",
+//   "../assets/chatbox/chat-s-br.png",
+//   "../assets/chatbox/chat-l-tl.png",
+//   "../assets/chatbox/chat-l-tr.png",
+//   "../assets/chatbox/chat-l-bl.png",
+//   "../assets/chatbox/chat-l-br.png",
+// ].map((loc) => {
+//   let dialog = new Image();
+//   dialog.src = loc;
+//   return dialog;
+// });
 
 let collect, playersList, mainPlayer;
 
 socket.on("init", ({ id, collectible, players }) => {
+  initiate(collectible, players);
+
   if (id === socket.id) {
+    console.log(players);
+    chatHandler(socket, mainPlayer);
+    Keypress(mainPlayer);
+
     console.log("Welcome, " + id + " !");
 
-    document.onkeydown = (e) => {
-      const { keyCode } = e;
-      if (keyCode == 65 || keyCode == 37) mainPlayer.movement["left"] = true;
-      if (keyCode == 68 || keyCode == 39) mainPlayer.movement["right"] = true;
-      if (keyCode == 87 || keyCode == 38) mainPlayer.movement["up"] = true;
-      if (keyCode == 83 || keyCode == 40) mainPlayer.movement["down"] = true;
-    };
-
-    document.onkeyup = (e) => {
-      const { keyCode } = e;
-      if (keyCode == 65 || keyCode == 37) mainPlayer.movement["left"] = false;
-      if (keyCode == 68 || keyCode == 39) mainPlayer.movement["right"] = false;
-      if (keyCode == 87 || keyCode == 38) mainPlayer.movement["up"] = false;
-      if (keyCode == 83 || keyCode == 40) mainPlayer.movement["down"] = false;
-    };
     setInterval(() => {
       draw();
     }, 10);
@@ -66,8 +56,6 @@ socket.on("init", ({ id, collectible, players }) => {
     //     socket.emit('player-update',  mainPlayer);
     // }, 15);
   } else console.log(id + " has joined the game.");
-
-  initiate(collectible, players);
 });
 
 socket.on("update", ({ collectible, players }) =>

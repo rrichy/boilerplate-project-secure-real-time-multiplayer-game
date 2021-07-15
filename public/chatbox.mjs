@@ -1,9 +1,10 @@
-export default function chatHandler(socket) {
-  //   const messages = [];
+// Adding chat system to the game
 
-  // Adding chat system to the game
+// For the static chatbox on the lowerleft of the screen
+export function chatHandler(socket, { name }) {
   const form = document.getElementsByTagName("form")[0];
   const chatbox = document.getElementById("log");
+  // let name = socket.id;
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -15,14 +16,30 @@ export default function chatHandler(socket) {
 
     chatinput.value = "";
 
+    // Chat commands
+    if (/^\/setname .+/.test(message)) {
+      name = message.match(/(?:^\/setname )(.+)/)[1];
+      socket.emit("change-name", { name });
+      return;
+    }
+
     // Emit chat
-    renderChat([socket.id, message]);
+    renderChat([name, message]);
     socket.emit("chat", { message });
+
+    // Focus back to canvas/htmlbody
+    document.activeElement.blur();
+    const log = document.getElementById("log");
+    log.scrollTop = log.scrollHeight;
   });
 
   socket.on("receive-chat", ({ message }) => {
+    console.log(message);
     renderChat(message);
-    // messages = [message].concat(messages.slice(0, 4));
+  });
+
+  socket.on("announce", ({ message }) => {
+    renderChat(message);
   });
 
   //   for (let i = 0; i < messages.length; i++) {
@@ -36,11 +53,6 @@ export default function chatHandler(socket) {
     const list = document.createElement("li");
     list.innerText = message.join(": ");
     chatbox.appendChild(list);
-    //   [...messages].reverse.forEach((message) => {
-    //       const list = document.createElement('li');
-    //       list.innerText(message.join(': '));
-    //       chatbox.appendChild(list);
-    //   });
   }
 
   // for(let i = 0; i < messages.length; i++) { // should only be showing latest chat of each player.... should fade after few seconds
@@ -50,65 +62,63 @@ export default function chatHandler(socket) {
   // }
 }
 
-// class Chat {
-//   constructor(message) {
-//     this.message = message;
-//   }
+export class Chat {
+  constructor(message) {
+    this.message = message;
+  }
 
-//   draw(context, x, y, boxes) {
-//     //boxes [stl, str, sbl, sbr, ltl, ltr, lbl, lbr]
-//     const length = this.message.length;
+  draw(context, x, y, boxes) {
+    //boxes [stl, str, sbl, sbr, ltl, ltr, lbl, lbr]
+    const length = this.message.length;
 
-//     if (length <= 22) {
-//       // use small boxes
-//       let message = this.message.match(/.{1,11}/g);
-//       if (x <= 71) {
-//         // use box with right orientation
-//         if (y <= 121) {
-//           // use box bot-right
-//           context.drawImage(boxes[3], x - 14, y + 6);
+    if (length <= 22) {
+      // use small boxes
+      let message = this.message.match(/.{1,11}/g);
+      if (x <= 71) {
+        // use box with right orientation
+        if (y <= 121) {
+          // use box bot-right
+          context.drawImage(boxes[3], x - 14, y + 6);
 
-//           for (let i = 0; i < message.length; i++) {
-//             context.font = "12px Arial";
-//             context.fillStyle = "#000000";
-//             context.fillText(message[i], x - 8, y + 55 + i * 20);
-//           }
-//         } else {
-//           // use top-right
-//           context.drawImage(boxes[1], x - 14, y - 124);
+          for (let i = 0; i < message.length; i++) {
+            context.font = "12px Arial";
+            context.fillStyle = "#000000";
+            context.fillText(message[i], x - 8, y + 55 + i * 20);
+          }
+        } else {
+          // use top-right
+          context.drawImage(boxes[1], x - 14, y - 124);
 
-//           for (let i = 0; i < message.length; i++) {
-//             context.font = "12px Arial";
-//             context.fillStyle = "#000000";
-//             context.fillText(message[i], x - 8, y - 104 + i * 20);
-//           }
-//         }
-//       } else {
-//         // use box with left orientation
-//         if (y <= 121) {
-//           // use box bot-left
-//           context.drawImage(boxes[2], x - 79, y + 7);
+          for (let i = 0; i < message.length; i++) {
+            context.font = "12px Arial";
+            context.fillStyle = "#000000";
+            context.fillText(message[i], x - 8, y - 104 + i * 20);
+          }
+        }
+      } else {
+        // use box with left orientation
+        if (y <= 121) {
+          // use box bot-left
+          context.drawImage(boxes[2], x - 79, y + 7);
 
-//           for (let i = 0; i < message.length; i++) {
-//             context.font = "12px Arial";
-//             context.fillStyle = "#000000";
-//             context.fillText(message[i], x - 73, y + 55 + i * 20);
-//           }
-//         } else {
-//           // use top-left
-//           context.drawImage(boxes[0], x - 79, y - 125);
+          for (let i = 0; i < message.length; i++) {
+            context.font = "12px Arial";
+            context.fillStyle = "#000000";
+            context.fillText(message[i], x - 73, y + 55 + i * 20);
+          }
+        } else {
+          // use top-left
+          context.drawImage(boxes[0], x - 79, y - 125);
 
-//           for (let i = 0; i < message.length; i++) {
-//             context.font = "12px Arial";
-//             context.fillStyle = "#000000";
-//             context.fillText(message[i], x - 73, y - 104 + i * 20);
-//           }
-//         }
-//       }
-//     } else {
-//       // use large boxes
-//     }
-//   }
-// }
-
-// export default Chat;
+          for (let i = 0; i < message.length; i++) {
+            context.font = "12px Arial";
+            context.fillStyle = "#000000";
+            context.fillText(message[i], x - 73, y - 104 + i * 20);
+          }
+        }
+      }
+    } else {
+      // use large boxes
+    }
+  }
+}
