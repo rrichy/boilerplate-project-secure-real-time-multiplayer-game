@@ -14,21 +14,48 @@ ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+li {
+  line-break: anywhere;
 }
 
 #chat-wrapper {
-  position: absolute;
-  bottom: 0;
+  box-sizing: border-box;
+  width: 250px;
+  height: 480px;
+  margin-right: 1rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-color: rgb(255, 251, 245);
+  border: 2px solid rgb(53, 40, 33);
+  border-radius: 0.6rem;
+}
+
+form {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 0.6rem 0;
+}
+
+input {
+  line-height: 1.5rem;
+  width: 100%;
 }
 
 .container {
-  position: absolute;
-  /* display: flex;
-  flex-direction: column; */
+  display: flex;
+  flex-direction: row-reverse;
+  /* align-items: flex-end; */
+  justify-content: center;
 }
 
-@media (min-width: 800px) {
+/* @media (min-width: 800px) {
   .container {
     flex-direction: row;
   }
-}
+} */

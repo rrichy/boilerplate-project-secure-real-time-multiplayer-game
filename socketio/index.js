@@ -22,6 +22,7 @@ module.exports = (io) => {
       x: 33 + Math.floor(Math.random() * 574),
       y: 68 + Math.floor(Math.random() * 342),
       score: 0,
+      name: client.id,
     };
 
     io.emit("init", { id: client.id, ...gameState });
@@ -51,13 +52,29 @@ module.exports = (io) => {
       console.log(`${client.id}: ${message}`);
       // gameState.players[client.id].chat = message;
       // gameState.players[client.id].showDialog = true;
-      client.broadcast.emit("receive-chat", { message: [client.id, message] });
+      // console.log()
+      client.broadcast.emit("receive-chat", {
+        message: [gameState.players[client.id].name, message],
+      });
 
       // client.broadcast.emit("update", gameState);
       // setTimeout(() => {
       //   gameState.players[client.id].showDialog = false;
       //   io.emit("update", gameState);
       // }, 7000);
+    });
+
+    client.on("change-name", ({ name }) => {
+      const previousName = gameState.players[client.id].name;
+
+      gameState.players[client.id].name = name;
+      io.emit("announce", {
+        message: [
+          "Notice:",
+          `${previousName} has changed his/her name to ${name}.`,
+        ],
+      });
+      client.broadcast.emit("update", gameState);
     });
 
     client.on("disconnect", () => {

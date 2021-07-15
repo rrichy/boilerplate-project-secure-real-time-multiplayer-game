@@ -29,8 +29,12 @@
     <div class="container">
       <canvas ref="game" id="game-window" width="640" height="480"> </canvas>
       <div id="chat-wrapper">
-        <ul id="log"></ul>
-        <form>
+        <ul id="log">
+          <li>
+            Notice: type "/setname &lt;name&gt;" to change your current name
+          </li>
+        </ul>
+        <form autocomplete="off">
           <input type="text" id="message" placeholder="Type here" />
           <button type="submit">Send</button>
         </form>
