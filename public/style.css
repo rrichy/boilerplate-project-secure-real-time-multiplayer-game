@@ -20,6 +20,7 @@ ul {
 
 li {
   line-break: anywhere;
+  font-size: 14px;
 }
 
 #chat-wrapper {
