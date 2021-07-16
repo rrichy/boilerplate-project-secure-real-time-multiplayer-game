@@ -7,9 +7,23 @@ let gameState = {
 function generateCollectible() {
   return {
     id: Date.now(),
-    x: 33 + Math.floor(Math.random() * 574),
-    y: 68 + Math.floor(Math.random() * 342),
+    x: 33 + Math.floor(Math.random() * 574), // todo: edit with collision
+    y: 68 + Math.floor(Math.random() * 342), // todo: edit with collision
     value: 10,
+  };
+}
+
+function generatePlayer(id) {
+  const x = 33 + Math.floor(Math.random() * 574); // todo: edit with collision
+  const y = 68 + Math.floor(Math.random() * 342); // todo: edit with collision
+  gameState.players[id] = {
+    id,
+    x,
+    y,
+    speed: 1,
+    score: 0,
+    name: id,
+    orientation: [x - 18, y - 23, 35, 45],
   };
 }
 
@@ -17,23 +31,38 @@ module.exports = (io) => {
   io.on("connection", (client) => {
     console.log("a user connected with id: " + client.id);
 
-    gameState.players[client.id] = {
-      id: client.id,
-      x: 33 + Math.floor(Math.random() * 574),
-      y: 68 + Math.floor(Math.random() * 342),
-      score: 0,
-      name: client.id,
-    };
+    generatePlayer(client.id);
 
-    io.emit("init", { id: client.id, ...gameState });
+    io.emit("announce", {
+      message: [
+        "Notice:",
+        `${gameState.players[client.id].name} has entered the game.`,
+      ],
+    });
 
-    client.on("player-update", ({ x, y, drawing, frame }) => {
+    io.emit("new-player", gameState);
+
+    // io.emit("init", { id: client.id, ...gameState });
+
+    // client.on("player-update", ({ x, y, drawing, frame }) => {
+    //   gameState.players[client.id].x = x;
+    //   gameState.players[client.id].y = y;
+    //   gameState.players[client.id].drawing = drawing;
+    //   gameState.players[client.id].frame = frame;
+
+    //   client.broadcast.emit("update", gameState);
+    // });
+    // {x, y, speed, score, orientation}
+    client.on("player-update", ({ x, y, speed, score, orientation }) => {
       gameState.players[client.id].x = x;
       gameState.players[client.id].y = y;
-      gameState.players[client.id].drawing = drawing;
-      gameState.players[client.id].frame = frame;
+      gameState.players[client.id].speed = speed;
+      gameState.players[client.id].score = score;
+      gameState.players[client.id].orientation = orientation;
+      // gameState.players[client.id].drawing = drawing;
+      // gameState.players[client.id].frame = frame;
 
-      client.broadcast.emit("update", gameState);
+      client.broadcast.emit("update-players", { players: gameState.players });
     });
 
     client.on("item-collected", (item) => {
@@ -74,10 +103,17 @@ module.exports = (io) => {
           `${previousName} has changed his/her name to ${name}.`,
         ],
       });
-      client.broadcast.emit("update", gameState);
+      client.broadcast.emit("update-name", { id: client.id, name });
     });
 
     client.on("disconnect", () => {
+      io.emit("player-logout", { id: client.id });
+      io.emit("announce", {
+        message: [
+          "Notice:",
+          `${gameState.players[client.id].name} has exited the game.`,
+        ],
+      });
       delete gameState.players[client.id];
       console.log(client.id + " has disconnected");
     });

@@ -1,32 +1,34 @@
 // Adding chat system to the game
 
 // For the static chatbox on the lowerleft of the screen
-export function chatHandler(socket, { name }) {
+export function chatHandler(socket, player) {
   const form = document.getElementsByTagName("form")[0];
   const chatbox = document.getElementById("log");
-  // let name = socket.id;
+  let { name } = player;
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-
+    // const active = document.activeElement;
     const chatinput = document.getElementById("message");
     const message = chatinput.value;
 
-    if (message === "") return;
+    if (message === "") {
+      document.activeElement.blur();
+      return;
+    }
 
     chatinput.value = "";
 
     // Chat commands
     if (/^\/setname .+/.test(message)) {
       name = message.match(/(?:^\/setname )(.+)/)[1];
+      player.name = name;
       socket.emit("change-name", { name });
-      return;
+    } else {
+      // Emit chat
+      renderChat([name, message]);
+      socket.emit("chat", { message });
     }
-
-    // Emit chat
-    renderChat([name, message]);
-    socket.emit("chat", { message });
-
     // Focus back to canvas/htmlbody
     document.activeElement.blur();
     const log = document.getElementById("log");

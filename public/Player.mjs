@@ -1,3 +1,9 @@
+let playerImg = new Image();
+playerImg.src = "../assets/sans.png";
+
+let playerTwo = new Image();
+playerTwo.src = "../assets/sans-2.png";
+
 class Player {
   constructor({
     x,
@@ -9,6 +15,7 @@ class Player {
     frame,
     showDialog = false,
     name,
+    face,
   }) {
     this.x = x;
     this.y = y;
@@ -123,22 +130,22 @@ class Player {
   //     socket.emit('movement', this);
   //   }
 
-  collision(item) {
-    return (
-      this.x >= item.boundary[0] &&
-      this.x <= item.boundary[1] &&
-      this.y >= item.boundary[2] &&
-      this.y <= item.boundary[3]
-    );
-  }
+  // collision(item) {
+  //   return (
+  //     this.x >= item.boundary[0] &&
+  //     this.x <= item.boundary[1] &&
+  //     this.y >= item.boundary[2] &&
+  //     this.y <= item.boundary[3]
+  //   );
+  // }
 
-  calculateRank(arr) {
-    //map to scores, remove duplicates, descending sort, indexOf, return rank
-    let scores = arr.map((player) => player.score);
-    scores = [...new Set(scores)].sort((a, b) => b - a);
+  // calculateRank(arr) {
+  //   //map to scores, remove duplicates, descending sort, indexOf, return rank
+  //   let scores = arr.map((player) => player.score);
+  //   scores = [...new Set(scores)].sort((a, b) => b - a);
 
-    return `Rank: ${scores.indexOf(this.score) + 1}/${arr.length}`;
-  }
+  //   return `Rank: ${scores.indexOf(this.score) + 1}/${arr.length}`;
+  // }
 }
 
 export default Player;
