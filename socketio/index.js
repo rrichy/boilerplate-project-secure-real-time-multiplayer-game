@@ -20,10 +20,10 @@ function generatePlayer(id) {
     id,
     x,
     y,
-    speed: 1,
+    speed: 5,
     score: 0,
     name: id,
-    orientation: [x - 18, y - 23, 35, 45],
+    orientation: [x, y, 35, 45],
   };
 }
 
@@ -84,6 +84,7 @@ module.exports = (io) => {
       // console.log()
       client.broadcast.emit("receive-chat", {
         message: [gameState.players[client.id].name, message],
+        id: client.id,
       });
 
       // client.broadcast.emit("update", gameState);

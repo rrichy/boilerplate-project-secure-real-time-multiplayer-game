@@ -46,9 +46,9 @@ class Player {
 
   movePlayer(dir) {
     if (dir == "left") this.x -= this.x <= 17 ? 0 : this.speed;
-    if (dir == "right") this.x += this.x >= 623 ? 0 : this.speed;
-    if (dir == "up") this.y -= this.y <= 52 ? 0 : this.speed;
-    if (dir == "down") this.y += this.y >= 426 ? 0 : this.speed;
+    if (dir == "right") this.x += this.x >= 599 ? 0 : this.speed;
+    if (dir == "up") this.y -= this.y <= 14 ? 0 : this.speed;
+    if (dir == "down") this.y += this.y >= 422 ? 0 : this.speed;
 
     //     console.log(`x: ${this.x}, y: ${this.y}`);
     //check for collect collision
@@ -64,8 +64,8 @@ class Player {
       if (val) {
         this.movePlayer(dir);
         if (dir === "up" || dir === "down")
-          this.orientation = [this.x - 18, this.y - 23, 35, 45];
-        else this.orientation = [this.x - 13, this.y - 23, 26, 45];
+          this.orientation = [this.x, this.y, 35, 45];
+        else this.orientation = [this.x, this.y, 26, 45];
 
         const { x, y, speed, score, orientation } = this;
         socket.emit("player-update", { x, y, speed, score, orientation });
@@ -87,7 +87,7 @@ class Player {
     // context.drawImage(img, ...this.drawing);
     context.fillStyle = "red";
     context.textAlign = "center";
-    context.fillText(this.name, this.x, this.y - 45);
+    context.fillText(this.name, this.x + this.orientation[2] / 2, this.y - 10);
 
     context.fillStyle = "#ff0000";
     context.fillRect(...this.orientation);

@@ -7,9 +7,10 @@ import Keypress from "./keypress.mjs";
 const socket = io();
 const canvas = document.getElementById("game-window");
 const context = canvas.getContext("2d");
-const fps = 20;
+const fps = 30;
 
 const backgroundImg = imageLoader("../assets/lobby.png");
+const wall = imageLoader("../assets/lobby-bottom-wall.png");
 const collectibleImg = imageLoader("../assets/collectible1.png");
 
 // const dialogBoxes = [
@@ -47,11 +48,11 @@ socket.on("new-player", ({ collectible, players }) => {
     });
     // collect = new Collectible(collectible); // Create collectible object.
     Keypress(mainPlayer); // Adding controls to the mainplayer object.
-    chatHandler(socket, mainPlayer); // Adding chat function to the mainplayer object.
+    chatHandler(socket, mainPlayer, playersList, fps); // Adding chat function to the mainplayer object.
 
     setInterval(() => {
       drawCanvas();
-    }, fps / 1000);
+    }, 1000 / fps);
   } else {
     const oldPlayersId = playersList.map((player) => player.id);
     const newPlayerId = Object.keys(players).filter(
@@ -91,6 +92,8 @@ function drawCanvas() {
   playersList.forEach((player) => {
     player.draw(context, socket);
   });
+
+  context.drawImage(wall, 0, 427);
   // collect.draw(context, collectibleImg);
   // if(dialog) dialog.draw(context, mainPlayer.x, mainPlayer.y);
 
