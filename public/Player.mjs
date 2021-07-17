@@ -104,9 +104,9 @@ class Player {
 
   movePlayer(dir, speed) {
     if (dir == "left") this.x -= this.x <= 17 ? 0 : speed;
-    if (dir == "right") this.x += this.x >= 623 ? 0 : speed;
-    if (dir == "up") this.y -= this.y <= 52 ? 0 : speed;
-    if (dir == "down") this.y += this.y >= 426 ? 0 : speed;
+    if (dir == "right") this.x += this.x >= 599 ? 0 : speed;
+    if (dir == "up") this.y -= this.y <= 14 ? 0 : speed;
+    if (dir == "down") this.y += this.y >= 422 ? 0 : speed;
 
     this.drawing = this.animation.walking[dir]();
 

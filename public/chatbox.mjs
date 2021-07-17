@@ -1,10 +1,10 @@
 // Adding chat system to the game
 
 // For the static chatbox on the lowerleft of the screen
-export function chatHandler(socket, player) {
+export function chatHandler(socket, main, players, fps) {
   const form = document.getElementsByTagName("form")[0];
   const chatbox = document.getElementById("log");
-  let { name } = player;
+  let { name } = main;
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -22,11 +22,12 @@ export function chatHandler(socket, player) {
     // Chat commands
     if (/^\/setname .+/.test(message)) {
       name = message.match(/(?:^\/setname )(.+)/)[1];
-      player.name = name;
+      main.name = name;
       socket.emit("change-name", { name });
     } else {
       // Emit chat
-      renderChat([name, message]);
+      renderChat([name, message], main);
+      // renderDialog()
       socket.emit("chat", { message });
     }
     // Focus back to canvas/htmlbody
@@ -35,9 +36,10 @@ export function chatHandler(socket, player) {
     log.scrollTop = log.scrollHeight;
   });
 
-  socket.on("receive-chat", ({ message }) => {
-    console.log(message);
-    renderChat(message);
+  socket.on("receive-chat", ({ message, id }) => {
+    // console.log(message);
+    const player = players.find((player) => player.id === id);
+    renderChat(message, player);
   });
 
   socket.on("announce", ({ message }) => {
@@ -51,10 +53,46 @@ export function chatHandler(socket, player) {
   //     context.fillText(text, 40, 410 - i * 20);
   //   }
 
-  function renderChat(message) {
+  const box = document.createElement("p");
+  box.className = "dialog";
+
+  let dialogBoxRender, destroyBox;
+
+  function renderChat(message, player) {
     const list = document.createElement("li");
     list.innerText = message.join(": ");
     chatbox.appendChild(list);
+
+    if (player) {
+      const container = document.querySelector(".container");
+      const canvas = document.getElementById("game-window");
+      const offsetX = canvas.offsetLeft;
+      const offsetY = canvas.offsetTop;
+
+      clearTimeout(destroyBox);
+      clearInterval(dialogBoxRender);
+      box.remove();
+      box.innerText = message[1];
+
+      container.appendChild(box);
+
+      const boxWidth = box.offsetWidth;
+      const boxHeight = box.offsetHeight;
+
+      dialogBoxRender = setInterval(() => {
+        const { x: charX, y: charY, orientation: offset } = player;
+
+        box.style.left = `${
+          offsetX + charX - Math.floor((boxWidth - offset[2]) / 2)
+        }px`;
+        box.style.top = `${offsetY + charY - boxHeight - 45}px`;
+      }, 1000 / fps);
+
+      destroyBox = setTimeout(() => {
+        clearInterval(dialogBoxRender);
+        box.remove();
+      }, 7000);
+    }
   }
 
   // for(let i = 0; i < messages.length; i++) { // should only be showing latest chat of each player.... should fade after few seconds

@@ -55,6 +55,17 @@ input {
   justify-content: center;
 }
 
+.dialog {
+  position: absolute;
+  padding: 0.5rem;
+  background-color: rgb(255, 251, 245);
+  border: 2px solid rgb(53, 40, 33);
+  border-radius: 0.6rem;
+  pointer-events: none;
+  max-width: 150px;
+  overflow-wrap: anywhere;
+}
+
 /* @media (min-width: 800px) {
   .container {
     flex-direction: row;
