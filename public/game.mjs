@@ -73,7 +73,8 @@ socket.on("update-players", ({ players }) => {
     player.y = players[id].y;
     player.speed = players[id].speed;
     player.score = players[id].score;
-    player.orientation = players[id].orientation;
+    player.facing = players[id].facing;
+    player.frame = players[id].frame;
   });
 });
 

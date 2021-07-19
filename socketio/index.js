@@ -23,7 +23,8 @@ function generatePlayer(id) {
     speed: 5,
     score: 0,
     name: id,
-    orientation: [x, y, 35, 45],
+    facing: "down",
+    frame: 0,
   };
 }
 
@@ -53,12 +54,14 @@ module.exports = (io) => {
     //   client.broadcast.emit("update", gameState);
     // });
     // {x, y, speed, score, orientation}
-    client.on("player-update", ({ x, y, speed, score, orientation }) => {
+    client.on("player-update", ({ x, y, speed, score, facing, frame }) => {
       gameState.players[client.id].x = x;
       gameState.players[client.id].y = y;
       gameState.players[client.id].speed = speed;
       gameState.players[client.id].score = score;
-      gameState.players[client.id].orientation = orientation;
+      gameState.players[client.id].facing = facing;
+      gameState.players[client.id].frame = frame;
+
       // gameState.players[client.id].drawing = drawing;
       // gameState.players[client.id].frame = frame;
 

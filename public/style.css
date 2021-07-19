@@ -66,6 +66,20 @@ input {
   overflow-wrap: anywhere;
 }
 
+.dialog::after {
+  content: "";
+  position: absolute;
+  /* background-color: linen; */
+  width: 0;
+  height: 0;
+  left: 50%;
+  bottom: -15px;
+  transform: translateX(-50%);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 15px solid rgb(255, 251, 245);
+}
+
 /* @media (min-width: 800px) {
   .container {
     flex-direction: row;
