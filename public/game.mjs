@@ -39,12 +39,10 @@ socket.on("new-player", ({ collectible, players }) => {
     playersList = playersList.map((player) => {
       // map each player IDs into a player Object
       if (player === socket.id) {
-        mainPlayer = new Player(
-          Object.assign({}, players[player], { face: 1 })
-        ); // Create mainplayer object.
+        mainPlayer = new Player(players[player]); // Create mainplayer object.
         return mainPlayer;
       }
-      return new Player(Object.assign({}, players[player], { face: 2 }));
+      return new Player(players[player]);
     });
     // collect = new Collectible(collectible); // Create collectible object.
     Keypress(mainPlayer); // Adding controls to the mainplayer object.
@@ -60,7 +58,8 @@ socket.on("new-player", ({ collectible, players }) => {
     );
 
     playersList.push(
-      new Player(Object.assign({}, players[newPlayerId], { face: 2 }))
+      new Player(players[newPlayerId])
+      // new Player(Object.assign({}, players[newPlayerId], { face: 2 }))
     );
   }
 });

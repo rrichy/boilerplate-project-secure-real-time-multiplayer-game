@@ -23,6 +23,7 @@ function generatePlayer(id) {
     speed: 5,
     score: 0,
     name: id,
+    face: Math.floor(Math.random() * 25),
     facing: "down",
     frame: 0,
   };

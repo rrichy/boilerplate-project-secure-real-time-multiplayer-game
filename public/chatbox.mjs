@@ -80,12 +80,12 @@ export function chatHandler(socket, main, players, fps) {
       const boxHeight = box.offsetHeight;
 
       dialogBoxRender = setInterval(() => {
-        const { x: charX, y: charY, character } = player;
+        const { x: charX, y: charY } = player;
 
-        const offset = character[0][1];
+        // const offset = character[0][1];
 
         box.style.left = `${
-          offsetX + charX - Math.floor((boxWidth - offset) / 2)
+          offsetX + charX - Math.floor((boxWidth - 10) / 2)
         }px`;
         box.style.top = `${offsetY + charY - boxHeight - 45}px`;
       }, 1000 / fps);
