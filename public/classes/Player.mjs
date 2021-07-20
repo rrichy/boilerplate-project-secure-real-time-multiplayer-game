@@ -1,4 +1,5 @@
-import Characters from "./Characters.mjs";
+// import Characters from "./Characters.mjs";
+import { Faces, DrawCuts } from "./Characters.mjs";
 
 class Player {
   constructor({ id, name, x, y, speed, score = 0, face, facing, frame }) {
@@ -8,7 +9,7 @@ class Player {
     this.y = y;
     this.speed = speed;
     this.score = score;
-    this.character = Characters[face - 1]; //this
+    this.character = Faces[face]; //this
     this.facing = facing; // this
 
     this.movement = {
@@ -60,7 +61,8 @@ class Player {
 
     context.fillStyle = "red";
     context.textAlign = "center";
-    context.fillText(this.name, this.x + this.character[0][1] / 2, this.y - 10);
+    // context.fillText(this.name, this.x + this.character[0][1] / 2, this.y - 10);
+    context.fillText(this.name, this.x + 10, this.y - 10);
 
     // context.fillStyle = "#ff0000";
     // context.fillRect(...this.orientation);
@@ -69,8 +71,8 @@ class Player {
     context.fillRect(this.x, this.y, 1, 1);
 
     context.drawImage(
-      this.character[0][0],
-      ...this.character[1][this.facing](this.x, this.y, this.frame)
+      this.character,
+      ...DrawCuts[this.facing](this.x, this.y, this.frame)
     );
   }
 }
